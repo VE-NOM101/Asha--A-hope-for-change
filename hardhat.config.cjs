@@ -20,12 +20,12 @@ task('chainid', 'Prints the current chain ID', async () => {
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: '0.8.28',
-  defaultNetwork: 'hardhat',
+  defaultNetwork: 'sepolia',
   networks: {
     hardhat: {},
-    // sepolia: {
-    //   url: `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
-    //   accounts: [process.env.PRIVATE_ACCOUNT_KEY1],
-    // }
+    sepolia: {
+      url: process.env.PUBLIC_RPC_URL,
+      accounts: [process.env.PRIVATE_KEY1],
+    },
   },
 }
