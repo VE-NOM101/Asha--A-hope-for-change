@@ -15,14 +15,15 @@
 
   --color-lightBgEnd: #5c92b5;
   --color-lightBgStart: #e3f4ff;
+
   --color-darkText: #ffffff;
   --color-lightText: #000000;
 
   --color-darkSecondary: #0d1828;
-  --color-lightSecondary: #5c92b5;
+  --color-lightSecondary: #54a799;
   --color-darkButton: black;
 }
 :root {
-  --purpleShadow: 0px 0px 20px 0px rgba(70, 40, 180, 0.7);
-  --cyanShadow: 0px 0px 20px 0px rgba(94, 206, 220, 0.5);
+  --purpleShadow: 0 4px 14px rgba(128, 0, 255, 0.5);
+  --cyanShadow: 0 4px 14px rgba(94, 206, 220, 0.5);
 }
