@@ -2,16 +2,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Marmelad&display=swap');
 @import 'tailwindcss';
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  /*--breakpoint-sm: 350px;*/
-
-  --breakpoint-sm: 300px;
-  --breakpoint-md: 768px;
-  --breakpoint-lg: 1024px;
-  --breakpoint-xl: 1280px;
-  --breakpoint-2xl: 1536px;
-
   --font-body: 'Marmelad';
   --font-special: 'Saira';
   --font-comfortaa: 'Comfortaa';
@@ -22,6 +15,14 @@
 
   --color-lightBgEnd: #5c92b5;
   --color-lightBgStart: #e3f4ff;
+  --color-darkText: #ffffff;
+  --color-lightText: #000000;
+
+  --color-darkSecondary: #0d1828;
+  --color-lightSecondary: #5c92b5;
+  --color-darkButton: black;
 }
 :root {
+  --purpleShadow: 0px 0px 20px 0px rgba(70, 40, 180, 0.7);
+  --cyanShadow: 0px 0px 20px 0px rgba(94, 206, 220, 0.5);
 }
