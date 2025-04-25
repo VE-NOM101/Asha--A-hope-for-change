@@ -13,11 +13,15 @@
   "dependencies": {
     "@kalimahapps/vue-icons": "^1.7.1",
     "@tailwindcss/vite": "^4.1.4",
+    "axios": "^1.9.0",
     "dotenv": "^16.5.0",
+    "pinata": "^2.2.1",
     "pinia": "^3.0.1",
     "tailwindcss": "^4.1.4",
     "vue": "^3.5.13",
-    "vue-router": "^4.5.0"
+    "vue-router": "^4.5.0",
+    "vue3-spinners": "^1.3.1",
+    "vue3-toastify": "^0.2.8"
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",

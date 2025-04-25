@@ -9,6 +9,17 @@
 import CreateCampaignLeft from './createCampaignLeft.vue';
 import CreateCampaignRight from './createCampaignRight.vue';
 
+import { provide, reactive } from 'vue'
 
+const newCampaign = reactive({
+    title: '',
+    story: '',
+    requiredAmount: '',
+    category: 'Education',
+    imageUrl: '',
+    storyUrl: ''
+})
+
+provide('newCampaign', newCampaign)
 
 </script>

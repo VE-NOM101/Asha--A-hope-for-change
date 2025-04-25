@@ -1,9 +1,12 @@
 <template>
-    <main class="font-body relative overflow-hidden">
+    <div class="min-h-screen flex flex-col font-body">
         <HeaderMain />
-        <RouterView />
+        <main class="flex-grow relative overflow-hidden">
+            <RouterView />
+        </main>
+
         <FooterMain />
-    </main>
+    </div>
 </template>
 
 <script setup>
