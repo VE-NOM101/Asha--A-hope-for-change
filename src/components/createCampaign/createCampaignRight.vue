@@ -61,12 +61,26 @@
             <div class="space-y-2">
                 <button @click="handleIPFS"
                     class="hover:cursor-pointer w-full bg-gradient-to-r from-pink-500 from-10% via-purple-500 via-30% to-indigo-500 to-90% opacity-40 hover:opacity-100 text-lightText dark:text-darkText font-semibold text-lg py-3 rounded-2xl transition-all duration-300">
-                    Upload Image to IPFS
-
+                    <div v-if="!isIpfsUploaded" class="flex justify-center items-center">
+                        <VueSpinnerIos v-if="isIpfsUploading" size="35" color="black" />
+                        <span v-else>Upload Image to IPFS</span>
+                    </div>
+                    <div v-else class="hover:cursor-no-drop flex justify-center items-center">
+                        File Uploaded Successfully
+                    </div>
                 </button>
-                <button
+
+                <button v-if="isIpfsUploaded" @click="contract.createContract"
                     class="hover:cursor-pointer w-full bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90% opacity-40 hover:opacity-100 text-lightText dark:text-darkText font-semibold text-lg py-3 rounded-2xl transition-all duration-300">
-                    Create Campaign
+                    <div class="flex justify-center items-center">
+                        Create Campaign
+                    </div>
+                </button>
+                <button v-else @click="toaster('warning', 'Please upload story and image to IPFS first')"
+                    class="hover:cursor-pointer w-full bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90% opacity-40 hover:opacity-100 text-lightText dark:text-darkText font-semibold text-lg py-3 rounded-2xl transition-all duration-300">
+                    <div class="flex justify-center items-center">
+                        Create Campaign
+                    </div>
                 </button>
             </div>
 
@@ -79,14 +93,21 @@ import { ref } from 'vue';
 import { inject } from 'vue';
 import { BxImageAdd } from '@kalimahapps/vue-icons';
 import axios from 'axios';
-import toaster from '@/components/toaster/toaster.js'
+import toaster from '@/components/toaster/toaster.js';
+import { VueSpinnerIos } from 'vue3-spinners';
+import { AshaContract } from '@/utils/contractInteraction';
 
 const categories = ['Education', 'Health', 'Animal', 'Pendamic', 'Refugee'];
 
 const newCampaign = inject('newCampaign');
 
+const contract = new AshaContract();
+
 const selectedFile = ref(null);
 const formatedFileName = ref('');
+
+const isIpfsUploading = ref(false);
+const isIpfsUploaded = ref(true);
 
 const changeHandler = (event) => {
     const file = event.target.files[0];
@@ -96,13 +117,14 @@ const changeHandler = (event) => {
     }
 };
 
+
 const handleIPFS = async () => {
 
     if (!(newCampaign.story && selectedFile.value)) {
         toaster('error', 'Please select a file//image first and type story');
         return;
     }
-
+    isIpfsUploading.value = true;
     const formData = new FormData();
     formData.append('file', selectedFile.value);
     formData.append('story', newCampaign.story)
@@ -114,12 +136,15 @@ const handleIPFS = async () => {
             },
         });
         toaster('success', 'Story and Image uploaded to IPFS successfully', 2000);
+        isIpfsUploading.value = false;
+        isIpfsUploaded.value = true;
         newCampaign.storyCid = response.data.responseStory.cid;
         newCampaign.imageCid = response.data.responseImage.cid;
     } catch (err) {
         console.error('Upload failed:', err);
         toaster('error', err.message, 2000);
     }
+
 };
 
 

@@ -1,6 +1,6 @@
 <template>
     <div class="text-md h-full rounded-lg flex justify-between items-center px-4 cursor-pointer">
-        <div @click="connectWallet"
+        <div @click="connect"
             class="max-w-[300px] mr-4 flex justify-center items-center rounded-2xl p-3 bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90% transition-all duration-500 hover:scale-110 dark:hover:shadow-(--cyanShadow) hover:shadow-(--purpleShadow)">
             <AkBitcoinFill class="mr-2 text-2xl" />
             <div v-if="address === null">Connect Wallet</div>
@@ -19,88 +19,42 @@
 </template>
 
 <script setup>
-
+import { ethers } from 'ethers'; // <-- ADD THIS
 import { AkBitcoinFill } from '@kalimahapps/vue-icons';
 import { BsBrightnessHigh } from '@kalimahapps/vue-icons';
 import { MdTwoToneBrightness2 } from '@kalimahapps/vue-icons';
-import { ethers } from 'ethers';
+import { connectWallet } from '@/utils/connectWallet';
 
 import { ref, computed, onMounted } from 'vue';
 
-const { ethereum } = window;
+onMounted(async () => {
+    //await connect();
+});
 
 const mode = ref('dark');
 const address = ref(null);
 const balance = ref(null);
 
-
 const toggle_mode = () => {
-    mode.value = mode.value === 'dark' ? 'light' : 'dark'
+    mode.value = mode.value === 'dark' ? 'light' : 'dark';
     document.documentElement.classList.toggle('dark');
-}
-
-// Network config
-const networks = {
-    sepolia: {
-        chainId: `0x${Number(11155111).toString(16)}`, //
-        chainName: "Ethereum Sepolia Testnet",
-        nativeCurrency: {
-            name: "SepoliaETH",
-            symbol: "SepoliaETH",
-            decimals: 18,
-        },
-        rpcUrls: [import.meta.env.PUBLIC_RPC_URL], // include full URL
-        blockExplorerUrls: ["https://sepolia.etherscan.io"],
-    },
 };
 
-const connectWallet = async () => {
-
-    if (!window.ethereum) {
-        alert("Please install MetaMask!");
-        return;
+const connect = async () => {
+    const response = await connectWallet();
+    if (response) {
+        address.value = response.address;
+        balance.value = response.balance;
     }
-    await ethereum.request({ method: "eth_requestAccounts" });
-
-    const provider = new ethers.BrowserProvider(ethereum);
-    const network = await provider.getNetwork();
-
-    if (network.chainId !== 11155111) {
-        try {
-            await ethereum.request({
-                method: "wallet_switchEthereumChain",
-                params: [{ chainId: `0x${Number(11155111).toString(16)}` }],
-            });
-        } catch (switchError) {
-            // This error means the network isn't added, so we try to add it
-            if (switchError.code === 4902) {
-                try {
-                    await ethereum.request({
-                        method: "wallet_addEthereumChain",
-                        params: [networks.sepolia],
-                    });
-                } catch (addError) {
-                    console.error("Add chain error:", addError);
-                }
-            } else {
-                console.error("Switch error:", switchError);
-            }
-        }
-    }
-
-    const signer = await provider.getSigner();
-    address.value = await signer.getAddress();
-    balance.value = await provider.getBalance(address.value);
 };
-
 
 const formattedBalance = computed(() => {
-    if (!balance.value) return '0.0000' // fallback
-    return ethers.formatEther(balance.value);
+    if (!balance.value) return '0.0000'; // fallback
+    return `${ethers.formatEther(balance.value).slice(0, 4)}`;
 });
 
 const formattedAddress = computed(() => {
+    if (!address.value) return ''; // fallback
     return `${address.value.slice(0, 6)}...${address.value.slice(-4)}`;
 });
-
 </script>
