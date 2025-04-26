@@ -70,7 +70,7 @@
                     </div>
                 </button>
 
-                <button v-if="isIpfsUploaded" @click="contract.createContract"
+                <button v-if="isIpfsUploaded" @click="createNewCampaign"
                     class="hover:cursor-pointer w-full bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90% opacity-40 hover:opacity-100 text-lightText dark:text-darkText font-semibold text-lg py-3 rounded-2xl transition-all duration-300">
                     <div class="flex justify-center items-center">
                         Create Campaign
@@ -100,14 +100,14 @@ import { AshaContract } from '@/utils/contractInteraction';
 const categories = ['Education', 'Health', 'Animal', 'Pendamic', 'Refugee'];
 
 const newCampaign = inject('newCampaign');
-
+const responseCampaign = inject('responseCampaign');
 const contract = new AshaContract();
 
 const selectedFile = ref(null);
 const formatedFileName = ref('');
 
 const isIpfsUploading = ref(false);
-const isIpfsUploaded = ref(true);
+const isIpfsUploaded = ref(false);
 
 const changeHandler = (event) => {
     const file = event.target.files[0];
@@ -121,7 +121,7 @@ const changeHandler = (event) => {
 const handleIPFS = async () => {
 
     if (!(newCampaign.story && selectedFile.value)) {
-        toaster('error', 'Please select a file//image first and type story');
+        toaster('error', 'Please select a file/image first and type story');
         return;
     }
     isIpfsUploading.value = true;
@@ -141,11 +141,43 @@ const handleIPFS = async () => {
         newCampaign.storyCid = response.data.responseStory.cid;
         newCampaign.imageCid = response.data.responseImage.cid;
     } catch (err) {
+        isIpfsUploading.value = false;
+        isIpfsUploaded.value = false;
         console.error('Upload failed:', err);
         toaster('error', err.message, 2000);
     }
 
 };
+
+const createNewCampaign = async () => {
+    if (newCampaign.title === '') {
+        toaster('error', 'Enter title please', 2000);
+    }
+    else if (newCampaign.requiredAmount === '') {
+        toaster('error', 'Enter required amount please', 2000);
+    }
+    else if (newCampaign.imageCid === '') {
+        toaster('error', 'Image CID is not found', 2000);
+    }
+    else if (newCampaign.storyCid === '') {
+        toaster('error', 'Story CID is not found', 2000);
+    }
+    else if (newCampaign.category === '') {
+        toaster('error', 'Select correct category', 2000);
+    }
+    newCampaign.loading = true;
+
+    const response = await contract.createCampaign(newCampaign.title, newCampaign.requiredAmount, newCampaign.imageCid, newCampaign.category, newCampaign.storyCid);
+    newCampaign.loading = false;
+    if (response.success) {
+        responseCampaign.contractAddress = response.to;
+        toaster('success', response.message, 2000);
+    } else {
+        toaster('error', response.message, 2000);
+    }
+
+    newCampaign.resetValue();
+}
 
 
 </script>

@@ -11,7 +11,7 @@ const networks = {
       symbol: 'SepoliaETH',
       decimals: 18,
     },
-    rpcUrls: [import.meta.env.PUBLIC_RPC_URL], // include full URL
+    rpcUrls: [import.meta.env.VITE_RPC_URL], // include full URL
     blockExplorerUrls: ['https://sepolia.etherscan.io'],
   },
 }
