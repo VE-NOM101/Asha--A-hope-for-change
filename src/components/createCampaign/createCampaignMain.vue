@@ -16,8 +16,8 @@ const newCampaign = reactive({
     story: '',
     requiredAmount: '',
     category: 'Education',
-    imageUrl: '',
-    storyUrl: ''
+    imageCid: '',
+    storyCid: ''
 })
 
 provide('newCampaign', newCampaign)

@@ -14,7 +14,7 @@ const port = process.env.PORT || 3000
 // ✅ Create instance of PinataSDK
 const pinata = new pinataLib.PinataSDK({
   pinataJwt: process.env.PINATA_JWT,
-  pinataGateway: 'apricot-electronic-egret-300.mypinata.cloud',
+  pinataGateway: process.env.PINATA_GATEWAY,
 })
 
 app.use(cors())

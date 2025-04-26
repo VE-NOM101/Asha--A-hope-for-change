@@ -48,18 +48,18 @@
                     </label>
                     <!-- File Name Display -->
                     <span class="text-gray-500 dark:text-gray-400 truncate">
-                        {{ selectedFileName || 'No file chosen' }}
+                        {{ formatedFileName || 'No file chosen' }}
                     </span>
                 </div>
 
                 <!-- Hidden Real Input -->
-                <input type="file" id="campaign_image" name="campaign_image" accept="image/*" @change="handleFileChange"
+                <input type="file" id="campaign_image" name="campaign_image" accept="image/*" @change="changeHandler"
                     class="hidden" />
             </div>
 
             <!-- Buttons -->
             <div class="space-y-2">
-                <button @click="toastMsg"
+                <button @click="handleIPFS"
                     class="hover:cursor-pointer w-full bg-gradient-to-r from-pink-500 from-10% via-purple-500 via-30% to-indigo-500 to-90% opacity-40 hover:opacity-100 text-lightText dark:text-darkText font-semibold text-lg py-3 rounded-2xl transition-all duration-300">
                     Upload Image to IPFS
 
@@ -78,28 +78,49 @@
 import { ref } from 'vue';
 import { inject } from 'vue';
 import { BxImageAdd } from '@kalimahapps/vue-icons';
-import { toast } from 'vue3-toastify';
-
+import axios from 'axios';
+import toaster from '@/components/toaster/toaster.js'
 
 const categories = ['Education', 'Health', 'Animal', 'Pendamic', 'Refugee'];
 
-const selectedFileName = ref('');
-const file = ref(null);
-
-function handleFileChange(e) {
-    file.value = e.target.files[0];
-    selectedFileName.value = file.value ? file.value.name : '';
-}
-
 const newCampaign = inject('newCampaign');
 
+const selectedFile = ref(null);
+const formatedFileName = ref('');
 
-const toastMsg = () => {
-    toast.warning("Wow so easy !", {
-        autoClose: 1000,
-        position: 'left-center',
-    });
-}
+const changeHandler = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        selectedFile.value = file;
+        formatedFileName.value = `${file.name.slice(0, 16)}...${file.name.slice(-4)}`;
+    }
+};
+
+const handleIPFS = async () => {
+
+    if (!(newCampaign.story && selectedFile.value)) {
+        toaster('error', 'Please select a file//image first and type story');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', selectedFile.value);
+    formData.append('story', newCampaign.story)
+
+    try {
+        const response = await axios.post(`${import.meta.env.VITE_SERVER_HOST}/upload-pinata`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        toaster('success', 'Story and Image uploaded to IPFS successfully', 2000);
+        newCampaign.storyCid = response.data.responseStory.cid;
+        newCampaign.imageCid = response.data.responseImage.cid;
+    } catch (err) {
+        console.error('Upload failed:', err);
+        toaster('error', err.message, 2000);
+    }
+};
 
 
 </script>
