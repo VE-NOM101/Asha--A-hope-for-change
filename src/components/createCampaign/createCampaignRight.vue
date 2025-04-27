@@ -97,7 +97,7 @@ import toaster from '@/components/toaster/toaster.js';
 import { VueSpinnerIos } from 'vue3-spinners';
 import { AshaContract } from '@/utils/contractInteraction';
 
-const categories = ['Education', 'Health', 'Animal', 'Pendamic', 'Refugee'];
+const categories = inject('categories');
 
 const newCampaign = inject('newCampaign');
 const responseCampaign = inject('responseCampaign');

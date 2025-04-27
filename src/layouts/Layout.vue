@@ -12,5 +12,11 @@
 <script setup>
 import FooterMain from '@/components/footer/footerMain.vue';
 import HeaderMain from '@/components/header/headerMain.vue';
+import { provide, reactive } from 'vue';
+
+const categories = reactive(['Education', 'Health', 'Animal', 'Pendamic', 'Refugee']);
+
+
+provide('categories', categories);
 
 </script>
