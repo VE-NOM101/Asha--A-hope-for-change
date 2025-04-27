@@ -31,7 +31,7 @@ export class AshaContract {
       // Call the createCampaign with arguments
       const tx = await CampaignContractInstance.createCampaign(
         title, // string memory campaignTitle
-        parseInt(requiredFund), // uint requiredCampaignFund
+        ethers.parseEther(requiredFund), // uint requiredCampaignFund
         imageCid, // string memory imgURL
         category, // string memory category
         storyCid, // string memory storyURL
@@ -55,7 +55,7 @@ export class AshaContract {
         imageCid: e.args.imgURL,
         date: parseInt(e.args.timestamp),
         owner: e.args.owner,
-        amount: parseInt(e.args.requiredFund),
+        amount: ethers.formatEther(e.args.requiredFund),
       }
     })
     return formated_events
@@ -70,7 +70,7 @@ export class AshaContract {
         imageCid: e.args.imgURL,
         date: parseInt(e.args.timestamp),
         owner: e.args.owner,
-        amount: parseInt(e.args.requiredFund),
+        amount: ethers.formatEther(e.args.requiredFund),
       }
     })
     return formated_events
