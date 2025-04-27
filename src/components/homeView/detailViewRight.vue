@@ -5,23 +5,31 @@
 
         <!-- Donation Input and Button -->
         <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-            <input type="number" placeholder="Enter Amount To Donate(ETH)"
+            <input type="number" :value="amountInEther" min="0" @input="amountInEther = Math.abs($event.target.value)"
+                placeholder="Enter Amount To Donate(ETH)"
                 class="dark:bg-darkSecondary bg-white dark:text-darkText text-lightText p-4 rounded-lg w-full md:w-1/2 border border-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:dark:ring-indigo-400" />
-            <button
-                class="flex justify-center items-center dark:text-darkText text-lightText bg-gradient-to-r text-lg from-purple-500 to-indigo-500 hover:dark:shadow-(--cyanShadow) hover:shadow-(--purpleShadow) hover:-translate-x-1.5   font-bold py-4 px-8 rounded-lg transition-all duration-300 w-full md:w-auto">
-                <BxDonateBlood /> Donate
+            <button @click="donateToCampaign">
+                <div v-if="sending"
+                    class="flex justify-center items-center dark:text-darkText text-lightText bg-gradient-to-r text-lg from-purple-500 to-indigo-500 hover:dark:shadow-(--cyanShadow) hover:shadow-(--purpleShadow) hover:-translate-x-1.5   font-bold py-4 px-8 rounded-lg transition-all duration-300 w-full md:w-auto">
+                    <VueSpinnerIos size="35" />
+                </div>
+                <div class="flex justify-center items-center dark:text-darkText text-lightText bg-gradient-to-r text-lg from-purple-500 to-indigo-500 hover:dark:shadow-(--cyanShadow) hover:shadow-(--purpleShadow) hover:-translate-x-1.5   font-bold py-4 px-8 rounded-lg transition-all duration-300 w-full md:w-auto"
+                    v-else>
+                    <BxDonateBlood /> Donate
+                </div>
+
             </button>
         </div>
 
         <!-- Required and Received Amount -->
         <div class="flex flex-col md:flex-row gap-4">
             <div class="dark:bg-darkSecondary bg-white p-4 rounded-lg flex-1 text-center">
-                <p class="text-gray-400">Required Amount</p>
-                <p class="text-xl font-bold text-lightText dark:text-darkText">1000.0 ETH</p>
+                <p class="text-gray-400">Required Fund</p>
+                <p class="text-xl font-bold text-lightText dark:text-darkText">{{ requiredFund }} ETH</p>
             </div>
             <div class="dark:bg-darkSecondary bg-white p-4 rounded-lg flex-1 text-center">
-                <p class="text-gray-400">Received Amount</p>
-                <p class="text-xl font-bold text-lightText dark:text-darkText">0.0 ETH</p>
+                <p class="text-gray-400">Received Fund</p>
+                <p class="text-xl font-bold text-lightText dark:text-darkText">{{ receivedFund }} ETH</p>
             </div>
         </div>
 
@@ -52,4 +60,41 @@
 
 <script setup>
 import { BxDonateBlood } from '@kalimahapps/vue-icons';
+import { defineProps, inject, ref, toRef } from 'vue';
+import toaster from '@/components/toaster/toaster.js';
+import { AshaContract } from '@/utils/contractInteraction';
+import { useRoute, useRouter } from 'vue-router';
+import { VueSpinnerIos } from 'vue3-spinners';
+const router = useRouter();
+const route = useRoute();
+const amountInEther = ref(0);
+const props = defineProps(['requiredFund', 'receivedFund']);
+const requiredFund = toRef(props, 'requiredFund');
+const receivedFund = toRef(props, 'receivedFund')
+const sending = ref(false);
+
+async function donateToCampaign() {
+    if (amountInEther.value == 0) {
+        toaster('error', 'Zero amount can not be donated');
+        return;
+    }
+
+    sending.value = true;
+    const campaign_address = route.params.campaign_address;
+    const contract = new AshaContract();
+
+    const response = await contract.donateToCampaign(campaign_address, amountInEther.value);
+
+    if (response.success) {
+        toaster('success', response.message, 2000);
+        console.log("Hash: " + response.hash);
+    } else {
+        toaster('error', response.message);
+    }
+
+    sending.value = false;
+    amountInEther.value = 0;
+    return;
+}
+
 </script>

@@ -14,7 +14,7 @@ const router = createRouter({
       component: Layout,
       children: [
         { name: 'homeView', path: '', component: HomeView },
-        { name: 'detailView', path: '/detail-view', component: DetailView },
+        { name: 'detailView', path: '/detail-view/:campaign_address', component: DetailView },
         { name: 'createCampaignView', path: '/create-campaign', component: CreateCampaign },
         { name: 'dashboard', path: '/dashboard', component: Dashboard },
       ],

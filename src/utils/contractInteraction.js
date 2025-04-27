@@ -1,5 +1,6 @@
 import { ethers } from 'ethers'
 import CampaignFactory from '@/abi/Campaign.sol/CampaignFactory.json'
+import Campaign from '@/abi/Campaign.sol/Campaign.json'
 
 const { ethereum } = window
 
@@ -56,6 +57,7 @@ export class AshaContract {
         date: parseInt(e.args.timestamp),
         owner: e.args.owner,
         amount: ethers.formatEther(e.args.requiredFund),
+        campaignAddress: e.args.campaignAddress.toString(),
       }
     })
     return formated_events
@@ -71,6 +73,7 @@ export class AshaContract {
         date: parseInt(e.args.timestamp),
         owner: e.args.owner,
         amount: ethers.formatEther(e.args.requiredFund),
+        campaignAddress: e.args.campaignAddress.toString(),
       }
     })
     return formated_events
@@ -140,5 +143,42 @@ export class AshaContract {
     )
     const formated_events = await this.getFormatedData(filter)
     return formated_events
+  }
+
+  async fetchCampaign(campaign_address) {
+    const fetchCampaignData = new ethers.Contract(
+      campaign_address,
+      Campaign.abi,
+      this.testnetProvider,
+    )
+
+    return {
+      title: await fetchCampaignData.title(),
+      requiredFund: ethers.formatEther(await fetchCampaignData.requiredFund()),
+      imageCid: await fetchCampaignData.image_url(),
+      storyCid: await fetchCampaignData.story_url(),
+      owner: await fetchCampaignData.owner(),
+      receivedFund: ethers.formatEther(await fetchCampaignData.receivedFund()),
+    }
+  }
+
+  async donateToCampaign(campaign_address, amountInEther) {
+    try {
+      const signer = await this.browserProvider.getSigner()
+      const CampaignContractInstance = new ethers.Contract(campaign_address, Campaign.abi, signer)
+
+      const tx = await CampaignContractInstance.donate({
+        value: ethers.parseEther(amountInEther.toString()),
+      })
+      await tx.wait()
+      return { hash: tx.hash, success: true, message: amountInEther + ', Donated Successfully' }
+    } catch (error) {
+      console.log(error)
+      if (error.reason && error.reason.includes('Required fund fullfilled')) {
+        return { message: 'Sorry! The fund goal is already achieved.', success: false }
+      } else {
+        return { message: 'Something went wrong', success: false }
+      }
+    }
   }
 }

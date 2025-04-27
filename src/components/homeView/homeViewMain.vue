@@ -10,25 +10,25 @@
 
         <div class="mt-6 flex flex-wrap flex-row items-center justify-center gap-12">
             <div v-if="selectedCategory === 'All'" v-for="(campaign, index) in allCampaign" :key="index">
-                <SingleCard :campaign="campaign" />
+                <SingleCard @click="gotoDetailView(campaign.campaignAddress)" :campaign="campaign" />
             </div>
 
             <div v-if="selectedCategory === 'Education'" v-for="(campaign, index) in educationCampaign" :key="index">
-                <SingleCard :campaign="campaign" />
+                <SingleCard @click="gotoDetailView(campaign.campaignAddress)" :campaign="campaign" />
             </div>
 
             <div v-if="selectedCategory === 'Health'" v-for="(campaign, index) in healthCampaign" :key="index">
-                <SingleCard :campaign="campaign" />
+                <SingleCard @click="gotoDetailView(campaign.campaignAddress)" :campaign="campaign" />
             </div>
             <div v-if="selectedCategory === 'Animal'" v-for="(campaign, index) in animalCampaign" :key="index">
-                <SingleCard :campaign="campaign" />
+                <SingleCard @click="gotoDetailView(campaign.campaignAddress)" :campaign="campaign" />
             </div>
             <div v-if="selectedCategory === 'Refugee'" v-for="(campaign, index) in refugeeCampaign" :key="index">
-                <SingleCard :campaign="campaign" />
+                <SingleCard @click="gotoDetailView(campaign.campaignAddress)" :campaign="campaign" />
             </div>
 
             <div v-if="selectedCategory === 'Pendamic'" v-for="(campaign, index) in pendamicCampaign" :key="index">
-                <SingleCard :campaign="campaign" />
+                <SingleCard @click="gotoDetailView(campaign.campaignAddress)" :campaign="campaign" />
             </div>
         </div>
 
@@ -42,7 +42,7 @@ import CardText from './cardText.vue';
 import CardTop from './cardTop.vue';
 import SingleCard from './singleCard.vue';
 import { AshaContract } from '@/utils/contractInteraction.js';
-
+import { useRouter } from 'vue-router';
 // 👇 Create empty reactive variables
 const allCampaign = ref([]); // should be [] instead of null
 const healthCampaign = ref([]);
@@ -50,6 +50,7 @@ const educationCampaign = ref([]);
 const animalCampaign = ref([]);
 const refugeeCampaign = ref([]);
 const pendamicCampaign = ref([]);
+const router = useRouter();
 
 let contract = null; // no need to make contract reactive (not used in template)
 
@@ -60,6 +61,10 @@ const selectedCategory = ref('All');
 function showCategory(category) {
     selectedCategory.value = category;
     console.log(selectedCategory.value);
+}
+
+function gotoDetailView(campaign_address) {
+    router.push(`/detail-view/${campaign_address}`)
 }
 
 onMounted(async () => {
@@ -76,4 +81,5 @@ onMounted(async () => {
     refugeeCampaign.value = await contract.getRefugeeCampaign();
     pendamicCampaign.value = await contract.getPendamicCampaign();
 })
+
 </script>

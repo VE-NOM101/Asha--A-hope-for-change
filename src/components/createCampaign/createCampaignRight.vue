@@ -10,8 +10,9 @@
                         class="block text-lg md:text-xl font-medium text-lightText dark:text-darkText">
                         Required Amount (ETH)
                     </label>
-                    <input v-model="newCampaign.requiredAmount" type="number" id="required_amount"
-                        name="required_amount" placeholder="Enter required amount..."
+                    <input :value="newCampaign.requiredAmount" min="0"
+                        @input="newCampaign.requiredAmount = Math.abs($event.target.value)" type="number"
+                        id="required_amount" name="required_amount" placeholder="Enter required amount..."
                         class="w-full bg-white dark:bg-darkSecondary text-lightText dark:text-darkText dark:placeholder-gray-400 text-base md:text-lg px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all duration-300" />
                 </div>
 
