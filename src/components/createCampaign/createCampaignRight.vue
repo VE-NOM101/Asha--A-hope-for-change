@@ -170,7 +170,7 @@ const createNewCampaign = async () => {
     const response = await contract.createCampaign(newCampaign.title, newCampaign.requiredAmount, newCampaign.imageCid, newCampaign.category, newCampaign.storyCid);
     newCampaign.loading = false;
     if (response.success) {
-        responseCampaign.contractAddress = response.to;
+        responseCampaign.hash = response.hash;
         toaster('success', response.message, 2000);
     } else {
         toaster('error', response.message, 2000);

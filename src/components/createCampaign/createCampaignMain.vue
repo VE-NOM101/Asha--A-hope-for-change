@@ -1,7 +1,7 @@
 <template>
     <div>
         <div v-if="!newCampaign.loading">
-            <div v-if="!newCampaign.contractAddress"
+            <div v-if="responseCampaign.hash === ''"
                 class="mb-12 flex px-4 max-w-[1200px] mx-auto mt-[80px] justify-center items-baseline">
                 <CreateCampaignLeft />
                 <CreateCampaignRight />
@@ -10,10 +10,13 @@
                 <div
                     class="flex flex-col justify-center items-center w-full h-[50vh] rounded-2xl dark:bg-darkSecondary bg-lightSecondary">
                     <h1 class="text-4xl text-lightText dark:text-green-600 ">New Campaign Started Successfully</h1>
-                    <h1 class="text-lg font-special">{{ responseCampaign.contractAddress }}</h1>
+                    <h1 class="text-lg font-special">{{ responseCampaign.hash }}</h1>
                     <button
                         class="m-4 px-4 py-2 text-2xl rounded-4xl bg-gradient-to-r from-indigo-500 from-10% via-purple-500 via-30% to-pink-500 to-90% transition-all duration-500 hover:scale-110 dark:hover:shadow-(--cyanShadow) hover:shadow-(--purpleShadow)">Go
                         to campaign</button>
+                    <button @click="refreshPage"
+                        class="m-4 px-4 py-2 text-2xl rounded-4xl bg-gradient-to-r from-indigo-500 from-10% via-purple-500 via-30% to-pink-500 to-90% transition-all duration-500 hover:scale-110 dark:hover:shadow-(--cyanShadow) hover:shadow-(--purpleShadow)">Create
+                        Another Campaign</button>
                 </div>
             </div>
         </div>
@@ -29,7 +32,7 @@ import CreateCampaignLeft from './createCampaignLeft.vue';
 import CreateCampaignRight from './createCampaignRight.vue';
 import { VueSpinnerRings } from 'vue3-spinners';
 import { provide, reactive } from 'vue';
-import { ref } from 'vue';
+
 const newCampaign = reactive({
     title: '',
     story: '',
@@ -51,8 +54,16 @@ const newCampaign = reactive({
 });
 
 const responseCampaign = reactive({
-    contractAddress: '',
+    hash: '',
+    resetValue() {
+        this.hash = '';
+    }
 })
+
+const refreshPage = () => {
+    newCampaign.resetValue();
+    responseCampaign.resetValue();
+}
 
 provide('newCampaign', newCampaign);
 
