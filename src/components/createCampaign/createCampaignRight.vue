@@ -60,29 +60,24 @@
 
             <!-- Buttons -->
             <div class="space-y-2">
-                <button @click="handleIPFS"
-                    class="hover:cursor-pointer w-full bg-gradient-to-r from-pink-500 from-10% via-purple-500 via-30% to-indigo-500 to-90% opacity-40 hover:opacity-100 text-lightText dark:text-darkText font-semibold text-lg py-3 rounded-2xl transition-all duration-300">
-                    <div v-if="!isIpfsUploaded" class="flex justify-center items-center">
-                        <VueSpinnerIos v-if="isIpfsUploading" size="35" color="black" />
-                        <span v-else>Upload Image to IPFS</span>
-                    </div>
-                    <div v-else class="hover:cursor-no-drop flex justify-center items-center">
-                        File Uploaded Successfully
+
+                <!-- <VueSpinnerIos v-if="isIpfsUploading" size="35" color="black" />
+                 <span v-else>Upload Image to IPFS</span> -->
+
+                <button v-if="isCreating"
+                    class="hover:cursor-pointer w-full bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90% opacity-40 hover:opacity-100 text-lightText dark:text-darkText font-semibold text-lg py-3 rounded-2xl transition-all duration-300">
+                    <div class="flex justify-center items-center">
+                        <VueSpinnerIos size="35" color="black" />
                     </div>
                 </button>
 
-                <button v-if="isIpfsUploaded" @click="createNewCampaign"
+                <button v-else @click="createNewCampaign"
                     class="hover:cursor-pointer w-full bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90% opacity-40 hover:opacity-100 text-lightText dark:text-darkText font-semibold text-lg py-3 rounded-2xl transition-all duration-300">
                     <div class="flex justify-center items-center">
                         Create Campaign
                     </div>
                 </button>
-                <button v-else @click="toaster('warning', 'Please upload story and image to IPFS first')"
-                    class="hover:cursor-pointer w-full bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90% opacity-40 hover:opacity-100 text-lightText dark:text-darkText font-semibold text-lg py-3 rounded-2xl transition-all duration-300">
-                    <div class="flex justify-center items-center">
-                        Create Campaign
-                    </div>
-                </button>
+
             </div>
 
         </div>
@@ -107,8 +102,7 @@ const contract = new AshaContract();
 const selectedFile = ref(null);
 const formatedFileName = ref('');
 
-const isIpfsUploading = ref(false);
-const isIpfsUploaded = ref(false);
+const isCreating = ref(false);
 
 const ids = ref(null);
 
@@ -125,82 +119,104 @@ const handleIPFS = async () => {
 
     if (!(newCampaign.story && selectedFile.value)) {
         toaster('error', 'Please select a file/image first and type story');
-        return;
+        return false;
     }
-    isIpfsUploading.value = true;
+
     const formData = new FormData();
     formData.append('file', selectedFile.value);
     formData.append('story', newCampaign.story);
 
     try {
+        isCreating.value = true;
         const response = await axios.post(`${import.meta.env.VITE_SERVER_HOST}/upload-pinata`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
         });
-        toaster('success', 'Story and Image uploaded to IPFS successfully', 2000);
-        isIpfsUploading.value = false;
-        isIpfsUploaded.value = true;
+        console.log('success:', 'Story and Image uploaded to IPFS successfully');
+        isCreating.value = false;
+
         newCampaign.storyCid = response.data.responseStory.cid;
         newCampaign.imageCid = response.data.responseImage.cid;
         ids.value = response.data.ids;
 
+        isCreating.value = false;
+        return true;
+
     } catch (err) {
-        isIpfsUploading.value = false;
-        isIpfsUploaded.value = false;
         console.error('Upload failed:', err);
         toaster('error', err.message, 2000);
     }
 
+    return false;
 };
 
 const handleIPFSGarbage = async () => {
     if (ids.value == null) {
-        return
+        return false
     }
-    const formData = new FormData();
-    formData.append('ids', ids.value.ids);
     try {
-        const response = await axios.delete(`${import.meta.env.VITE_SERVER_HOST}/delete-pinata`, formData);
-        if (response.success) {
-            toaster('success', response.message, 2000);
-            console.log(response.response);
+        const response = await axios.post(`${import.meta.env.VITE_SERVER_HOST}/delete-pinata`, {
+            ids: ids.value
+        });
+        if (response.data.success) {
+            console.log(response.data.message);
+            return true;
         } else {
-            toaster('error', response.message, 2000);
+            console.log(response.data.message);
         }
     } catch (err) {
-        toaster('error', err.message, 2000);
+        console.log('error:', err.message);
     }
+
+    return false;
 
 }
 
 const createNewCampaign = async () => {
-    if (newCampaign.title === '') {
-        toaster('error', 'Enter title please', 2000);
-    }
-    else if (newCampaign.requiredAmount === '') {
-        toaster('error', 'Enter required amount please', 2000);
-    }
-    else if (newCampaign.imageCid === '') {
-        toaster('error', 'Image CID is not found', 2000);
-    }
-    else if (newCampaign.storyCid === '') {
-        toaster('error', 'Story CID is not found', 2000);
-    }
-    else if (newCampaign.category === '') {
-        toaster('error', 'Select correct category', 2000);
-    }
-    newCampaign.loading = true;
 
-    const response = await contract.createCampaign(newCampaign.title, newCampaign.requiredAmount, newCampaign.imageCid, newCampaign.category, newCampaign.storyCid);
-    newCampaign.loading = false;
-    if (response.success) {
-        responseCampaign.hash = response.hash;
-        toaster('success', response.message, 2000);
-        newCampaign.resetValue();
-    } else {
-        toaster('error', response.message, 2000);
-        await handleIPFSGarbage();
+    const check = await handleIPFS();
+    if (check) {
+        let garbage = false;
+        if (newCampaign.title === '') {
+            toaster('error', 'Enter title please', 2000);
+            garbage = true;
+        }
+        else if (newCampaign.requiredAmount === '') {
+            toaster('error', 'Enter required amount please', 2000);
+            garbage = true;
+        }
+        else if (newCampaign.imageCid === '') {
+            toaster('error', 'Image CID is not found', 2000);
+            garbage = true;
+        }
+        else if (newCampaign.storyCid === '') {
+            toaster('error', 'Story CID is not found', 2000);
+            garbage = true;
+        }
+        else if (newCampaign.category === '') {
+            toaster('error', 'Select correct category', 2000);
+            garbage = true;
+        }
+
+        if (garbage) {
+            await handleIPFSGarbage();
+            ids.value = null;
+            return;
+        }
+
+        newCampaign.loading = true;
+        const response = await contract.createCampaign(newCampaign.title, newCampaign.requiredAmount, newCampaign.imageCid, newCampaign.category, newCampaign.storyCid);
+        newCampaign.loading = false;
+        if (response.success) {
+            responseCampaign.campaignAddress = response.campaignAddress;
+            toaster('success', response.message, 2000);
+            newCampaign.resetValue();
+        } else {
+            toaster('error', response.message, 2000);
+            await handleIPFSGarbage();
+            ids.value = null;
+        }
     }
 }
 

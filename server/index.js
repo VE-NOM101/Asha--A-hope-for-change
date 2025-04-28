@@ -44,7 +44,7 @@ app.post('/upload-pinata', uploader.single('file'), async (req, res) => {
     return res.json({
       responseImage: responseImage,
       responseStory: responseStory,
-      ids: { ids: [responseImage.id, responseStory.id] },
+      ids: [responseImage.id, responseStory.id],
     })
   } catch (error) {
     console.error('Upload error:', error)
@@ -64,18 +64,26 @@ app.get('/fetch-pinata/:cid', async (req, res) => {
   }
 })
 
-app.delete('/delete-pinata', async (req, res) => {
+app.post('/delete-pinata', async (req, res) => {
   const { ids } = req.body
-  if (ids.length > 0) {
-    try {
-      const unpin = await pinata.files.public.delete(ids)
-      if (unpin[0].status === 'HTTP error' || unpin[1].status === 'HTTP error') {
-        return res.json({ message: 'HTTP error', success: false })
-      }
-      return res.json({ message: 'Deleted', success: true, response: unpin })
-    } catch (error) {
-      return res.json({ message: error.message, success: false })
+
+  if (!ids || ids.length === 0) {
+    return res.json({ message: 'No IDs provided', success: false })
+  }
+
+  try {
+    const unpin = await pinata.files.public.delete(ids)
+
+    // Check if any item has status "HTTP error"
+    const hasHttpError = unpin.some((item) => item.status === 'HTTP error')
+
+    if (hasHttpError) {
+      return res.json({ success: false, message: 'One or more deletions failed.' })
     }
+
+    return res.json({ success: true, message: 'All IDs deleted successfully.' })
+  } catch (error) {
+    return res.json({ success: false, message: error.message })
   }
 })
 

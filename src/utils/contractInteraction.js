@@ -39,11 +39,32 @@ export class AshaContract {
       )
 
       console.log('⏳ Transaction sent:', tx.hash)
-      await tx.wait()
-      return { success: true, message: 'Campaign Created Successfully', hash: tx.hash }
+
+      // Wait for the transaction to be mined
+      const receipt = await tx.wait()
+      // Find the 'campaignCreated' event from the receipt
+      const event = receipt.logs
+        .map((log) => {
+          try {
+            return CampaignContractInstance.interface.parseLog(log)
+          } catch {
+            return null
+          }
+        })
+        .find((parsed) => parsed && parsed.name === 'campaignCreated')
+      if (!event) {
+        throw new Error('campaignCreated event not found')
+      }
+
+      const campaignAddress = event.args.campaignAddress.toString() //Event param name is 'campaignAddress'
+      return {
+        success: true,
+        message: 'Campaign Created Successfully',
+        campaignAddress: campaignAddress,
+      }
     } catch (error) {
       console.log(error.message)
-      return { success: false, message: '❌ Transaction rejected by user.' }
+      return { success: false, message: error.message.slice(0, 30) + '...' }
     }
   }
 
@@ -171,13 +192,13 @@ export class AshaContract {
         value: ethers.parseEther(amountInEther.toString()),
       })
       await tx.wait()
-      return { hash: tx.hash, success: true, message: amountInEther + ', Donated Successfully' }
+      return { message: amountInEther + 'ETH, Donated Successfully', success: true }
     } catch (error) {
       console.log(error)
       if (error.reason && error.reason.includes('Required fund fullfilled')) {
         return { message: 'Sorry! The fund goal is already achieved.', success: false }
       } else {
-        return { message: 'Something went wrong', success: false }
+        return { message: error.message.slice(0, 30) + '...', success: false }
       }
     }
   }

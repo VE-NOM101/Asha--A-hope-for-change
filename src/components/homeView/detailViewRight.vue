@@ -67,7 +67,6 @@ import toaster from '@/components/toaster/toaster.js';
 import { AshaContract } from '@/utils/contractInteraction';
 import { useRoute, useRouter } from 'vue-router';
 import { VueSpinnerIos } from 'vue3-spinners';
-const router = useRouter();
 const route = useRoute();
 const CampaignDetailData = inject('CampaignDetailData');
 
@@ -80,23 +79,31 @@ async function donateToCampaign() {
         return;
     }
 
-    sending.value = true;
     const campaign_address = route.params.campaign_address;
     const contract = new AshaContract();
-
+    sending.value = true;
     const response = await contract.donateToCampaign(campaign_address, amountInEther.value);
+    sending.value = false;
 
     if (response.success) {
-        await CampaignDetailData.fetchDetailData();
-        toaster('success', response.message, 2000);
-        console.log("Hash: " + response.hash);
+        toaster('success', response.message, 3000);
+
+        const fetchResponse = await fetchDetailData();
+        CampaignDetailData.receivedFund = fetchResponse.receivedFund;
     } else {
         toaster('error', response.message);
     }
 
-    sending.value = false;
     amountInEther.value = 0;
     return;
+}
+
+
+async function fetchDetailData() {
+    const contract = new AshaContract();
+    const campaign_address = route.params.campaign_address;
+    const response = await contract.fetchCampaign(campaign_address);
+    return response;
 }
 
 </script>
