@@ -24,8 +24,8 @@ module.exports = {
   networks: {
     hardhat: {},
     sepolia: {
-      url: process.env.PUBLIC_RPC_URL,
-      accounts: [process.env.PRIVATE_KEY1],
+      url: process.env.VITE_RPC_URL,
+      accounts: [process.env.VITE_PRIVATE_KEY1],
     },
   },
 }

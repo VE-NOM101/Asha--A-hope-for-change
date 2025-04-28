@@ -11,7 +11,7 @@ contract CampaignFactory {
         address indexed owner,
         address campaignAddress,
         string imgURL,
-        uint indexed timestamp,
+        uint timestamp,
         string indexed category
     );
 
@@ -51,7 +51,7 @@ contract Campaign {
     address payable public owner;
     uint public receivedFund;
 
-    event donatedEvent(address indexed donar, uint indexed amount, uint indexed timestamp);
+    event donatedEvent(address indexed donar, uint amount, uint timestamp);
 
     //Constructor is called when a new campaign is created;
     constructor(
