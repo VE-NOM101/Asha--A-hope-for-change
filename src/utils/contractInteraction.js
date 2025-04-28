@@ -202,4 +202,42 @@ export class AshaContract {
       }
     }
   }
+
+  async fetchRecentDonation(campaign_address) {
+    const fetchRecentDonationData = new ethers.Contract(
+      campaign_address,
+      Campaign.abi,
+      this.testnetProvider,
+    )
+
+    const donatedEvent = await fetchRecentDonationData.queryFilter('donatedEvent')
+    const filtered_events = donatedEvent.reverse()
+    const formated_events = filtered_events.map((e) => {
+      return {
+        donar: e.args.donar,
+        amount: ethers.formatEther(e.args.amount),
+        timestamp: parseInt(e.args.timestamp),
+      }
+    })
+    return formated_events
+  }
+
+  async fetchMyDonation(campaign_address, my_address) {
+    const fetchRecentDonationData = new ethers.Contract(
+      campaign_address,
+      Campaign.abi,
+      this.testnetProvider,
+    )
+    const filter = fetchRecentDonationData.filters.donatedEvent(my_address, null, null)
+    const donatedEvent = await fetchRecentDonationData.queryFilter(filter)
+    const filtered_events = donatedEvent.reverse()
+    const formated_events = filtered_events.map((e) => {
+      return {
+        donar: e.args.donar,
+        amount: ethers.formatEther(e.args.amount),
+        timestamp: parseInt(e.args.timestamp),
+      }
+    })
+    return formated_events
+  }
 }

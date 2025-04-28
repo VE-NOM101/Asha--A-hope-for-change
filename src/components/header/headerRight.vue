@@ -26,10 +26,10 @@ import { MdTwoToneBrightness2 } from '@kalimahapps/vue-icons';
 import { connectWallet } from '@/utils/connectWallet';
 
 import { ref, computed, onMounted } from 'vue';
+import { useUserStore } from '@/stores/userStore';
 
-onMounted(async () => {
-    //await connect();
-});
+const { ethereum } = window;
+const store = useUserStore();
 
 const mode = ref('dark');
 const address = ref(null);
@@ -57,4 +57,14 @@ const formattedAddress = computed(() => {
     if (!address.value) return ''; // fallback
     return `${address.value.slice(0, 6)}...${address.value.slice(-4)}`;
 });
+
+onMounted(async () => {
+    ethereum.on("accountsChanged", async () => {
+        await connect();
+        store.setUserAddress(address.value);
+    });
+    await connect();
+    store.setUserAddress(address.value);
+});
+
 </script>

@@ -42,7 +42,17 @@
                 RECENT DONATION</div>
             <div class="h-32 overflow-y-auto p-2">
                 <!-- Donations list here -->
-                <p class="text-center text-gray-400">No recent donations yet</p>
+                <p v-if="recentDonation.length == 0" class="text-center text-gray-400">No recent donations yet</p>
+
+                <div v-else v-for="(item, index) in recentDonation" :key="index" class="flex flex-col gap-0.5">
+                    <div
+                        class=" cursor-pointer hover:dark:text-indigo-400 hover:text-cyan-400  border-gray-400 border-b-1 m-0.5 p-0.25 rounded-lg flex gap-0.5 justify-between items-center font-comfortaa dark:text-darkText text-lightText">
+                        <p>{{ formatAddress(item.donar) }}</p>
+                        <p>{{ item.amount }}</p>
+                        <p>{{ formatDate(item.timestamp) }}</p>
+
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -53,8 +63,17 @@
                 MY PAST DONATION</div>
             <div class="h-32 overflow-y-auto p-2">
                 <!-- Past donations list here -->
-                <p class="text-center text-gray-400">No past donations yet</p>
+                <p v-if="myDonation.length == 0" class="text-center text-gray-400">No recent donations yet</p>
 
+                <div v-else v-for="(item, index) in myDonation" :key="index" class="flex flex-col gap-0.5">
+                    <div
+                        class=" cursor-pointer hover:dark:text-indigo-400 hover:text-cyan-400  border-gray-400 border-b-1 m-0.5 p-0.25 rounded-lg flex gap-0.5 justify-between items-center font-comfortaa dark:text-darkText text-lightText">
+                        <p>{{ formatAddress(item.donar) }}</p>
+                        <p>{{ item.amount }}</p>
+                        <p>{{ formatDate(item.timestamp) }}</p>
+
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -62,17 +81,23 @@
 
 <script setup>
 import { BxDonateBlood } from '@kalimahapps/vue-icons';
-import { inject, ref, } from 'vue';
+import { inject, onMounted, ref, } from 'vue';
 import toaster from '@/components/toaster/toaster.js';
 import { AshaContract } from '@/utils/contractInteraction';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { VueSpinnerIos } from 'vue3-spinners';
+import { useUserStore } from '@/stores/userStore';
+const store = useUserStore();
 const route = useRoute();
 const CampaignDetailData = inject('CampaignDetailData');
+const contract = new AshaContract();
+const campaign_address = route.params.campaign_address;
 
 const amountInEther = ref(0);
 const sending = ref(false);
 
+const recentDonation = ref([]);
+const myDonation = ref([]);
 async function donateToCampaign() {
     if (amountInEther.value == 0) {
         toaster('error', 'Zero amount can not be donated');
@@ -100,10 +125,33 @@ async function donateToCampaign() {
 
 
 async function fetchDetailData() {
-    const contract = new AshaContract();
-    const campaign_address = route.params.campaign_address;
     const response = await contract.fetchCampaign(campaign_address);
     return response;
 }
+async function fetchRecentDonationData() {
+    const response = await contract.fetchRecentDonation(campaign_address);
+    return response;
+}
 
+async function fetchMyDonationData() {
+    const response = await contract.fetchMyDonation(campaign_address, store.userAddress);
+    return response;
+}
+
+onMounted(async () => {
+    recentDonation.value = await fetchRecentDonationData();
+    myDonation.value = await fetchMyDonationData();
+});
+
+const formatAddress = (address) => {
+    return address.slice(0, 10) + '...' + address.slice(-6)
+};
+
+const formatDate = (date) => {
+    return new Date(date * 1000).toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+    });
+}
 </script>
