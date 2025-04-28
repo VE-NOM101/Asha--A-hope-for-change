@@ -45,7 +45,7 @@ const newCampaign = reactive({
     resetValue() {
         this.title = '';
         this.story = '';
-        this.requiredAmount = '';
+        this.requiredAmount = 0;
         this.category = 'Education';
         this.imageCid = '';
         this.storyCid = '';

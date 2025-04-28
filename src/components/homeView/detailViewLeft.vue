@@ -18,12 +18,13 @@
 </template>
 
 <script setup>
-import { defineProps, onMounted, ref } from 'vue';
+import { inject, onMounted, ref } from 'vue';
 
 import { VueSpinnerHourglass } from 'vue3-spinners';
-const props = defineProps(['imageCid', 'storyCid']);
-const imageURL = import.meta.env.VITE_PINATA_GATEWAY_URL + '/' + props.imageCid;
-const storyURL = import.meta.env.VITE_PINATA_GATEWAY_URL + '/' + props.storyCid;
+
+const CampaignDetailData = inject('CampaignDetailData');
+const imageURL = import.meta.env.VITE_PINATA_GATEWAY_URL + '/' + CampaignDetailData.imageCid;
+const storyURL = import.meta.env.VITE_PINATA_GATEWAY_URL + '/' + CampaignDetailData.storyCid;
 const imageLoaded = ref(false);
 const story = ref('Loading');
 async function fetchStory() {
@@ -33,6 +34,6 @@ async function fetchStory() {
 }
 
 onMounted(async () => {
-    fetchStory();
+    await fetchStory();
 });
 </script>

@@ -110,6 +110,8 @@ const formatedFileName = ref('');
 const isIpfsUploading = ref(false);
 const isIpfsUploaded = ref(false);
 
+const ids = ref(null);
+
 const changeHandler = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -128,7 +130,7 @@ const handleIPFS = async () => {
     isIpfsUploading.value = true;
     const formData = new FormData();
     formData.append('file', selectedFile.value);
-    formData.append('story', newCampaign.story)
+    formData.append('story', newCampaign.story);
 
     try {
         const response = await axios.post(`${import.meta.env.VITE_SERVER_HOST}/upload-pinata`, formData, {
@@ -141,6 +143,8 @@ const handleIPFS = async () => {
         isIpfsUploaded.value = true;
         newCampaign.storyCid = response.data.responseStory.cid;
         newCampaign.imageCid = response.data.responseImage.cid;
+        ids.value = response.data.ids;
+
     } catch (err) {
         isIpfsUploading.value = false;
         isIpfsUploaded.value = false;
@@ -149,6 +153,26 @@ const handleIPFS = async () => {
     }
 
 };
+
+const handleIPFSGarbage = async () => {
+    if (ids.value == null) {
+        return
+    }
+    const formData = new FormData();
+    formData.append('ids', ids.value.ids);
+    try {
+        const response = await axios.delete(`${import.meta.env.VITE_SERVER_HOST}/delete-pinata`, formData);
+        if (response.success) {
+            toaster('success', response.message, 2000);
+            console.log(response.response);
+        } else {
+            toaster('error', response.message, 2000);
+        }
+    } catch (err) {
+        toaster('error', err.message, 2000);
+    }
+
+}
 
 const createNewCampaign = async () => {
     if (newCampaign.title === '') {
@@ -173,11 +197,11 @@ const createNewCampaign = async () => {
     if (response.success) {
         responseCampaign.hash = response.hash;
         toaster('success', response.message, 2000);
+        newCampaign.resetValue();
     } else {
         toaster('error', response.message, 2000);
+        await handleIPFSGarbage();
     }
-
-    newCampaign.resetValue();
 }
 
 

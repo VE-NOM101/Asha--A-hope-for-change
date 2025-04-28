@@ -44,6 +44,7 @@ app.post('/upload-pinata', uploader.single('file'), async (req, res) => {
     return res.json({
       responseImage: responseImage,
       responseStory: responseStory,
+      ids: { ids: [responseImage.id, responseStory.id] },
     })
   } catch (error) {
     console.error('Upload error:', error)
@@ -60,6 +61,21 @@ app.get('/fetch-pinata/:cid', async (req, res) => {
   } catch (error) {
     console.error(error)
     res.status(500).json({ message: error.message })
+  }
+})
+
+app.delete('/delete-pinata', async (req, res) => {
+  const { ids } = req.body
+  if (ids.length > 0) {
+    try {
+      const unpin = await pinata.files.public.delete(ids)
+      if (unpin[0].status === 'HTTP error' || unpin[1].status === 'HTTP error') {
+        return res.json({ message: 'HTTP error', success: false })
+      }
+      return res.json({ message: 'Deleted', success: true, response: unpin })
+    } catch (error) {
+      return res.json({ message: error.message, success: false })
+    }
   }
 })
 

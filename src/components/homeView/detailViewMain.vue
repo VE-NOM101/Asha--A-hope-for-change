@@ -6,18 +6,17 @@
         </div>
         <div v-else class="relative max-w-[1400px] mx-auto px-4 flex flex-col md:flex-row items-start mt-4 gap-6">
             <!-- Left Side - Image -->
-            <DetailViewLeft :imageCid="CampaignDetailData.imageCid" :storyCid="CampaignDetailData.storyCid" />
+            <DetailViewLeft />
 
             <!-- Right Side - Donation Form and Details -->
-            <DetailViewRight :receivedFund="CampaignDetailData.receivedFund"
-                :requiredFund="CampaignDetailData.requiredFund" />
+            <DetailViewRight />
         </div>
 
     </div>
 </template>
 ``
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, reactive, provide } from 'vue'
 import DetailViewLeft from './detailViewLeft.vue';
 import DetailViewRight from './detailViewRight.vue';
 import { useRoute } from 'vue-router';
@@ -25,16 +24,29 @@ import { AshaContract } from '@/utils/contractInteraction';
 import { VueSpinnerFacebook } from 'vue3-spinners';
 
 const route = useRoute();
-const CampaignDetailData = ref(null);
+const CampaignDetailData = reactive({
+    'imageCid': '',
+    'storyCid': '',
+    'requiredFund': '',
+    'receivedFund': '',
+});
 
 const loading = ref(true);
 onMounted(async () => {
+    const response = await fetchDetailData();
+    CampaignDetailData.imageCid = response.imageCid;
+    CampaignDetailData.storyCid = response.storyCid;
+    CampaignDetailData.requiredFund = response.requiredFund;
+    CampaignDetailData.receivedFund = response.receivedFund;
+    loading.value = false;
+});
+
+async function fetchDetailData() {
     const contract = new AshaContract();
     const campaign_address = route.params.campaign_address;
-    CampaignDetailData.value = await contract.fetchCampaign(campaign_address);
-
-    loading.value = false;
-    console.log(CampaignDetailData.value);
-});
+    const response = await contract.fetchCampaign(campaign_address);
+    return response;
+}
+provide('CampaignDetailData', CampaignDetailData);
 
 </script>

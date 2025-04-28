@@ -32,7 +32,7 @@ export class AshaContract {
       // Call the createCampaign with arguments
       const tx = await CampaignContractInstance.createCampaign(
         title, // string memory campaignTitle
-        ethers.parseEther(requiredFund), // uint requiredCampaignFund
+        ethers.parseEther(requiredFund.toString()), // uint requiredCampaignFund
         imageCid, // string memory imgURL
         category, // string memory category
         storyCid, // string memory storyURL

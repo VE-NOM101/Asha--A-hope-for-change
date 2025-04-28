@@ -25,11 +25,13 @@
         <div class="flex flex-col md:flex-row gap-4">
             <div class="dark:bg-darkSecondary bg-white p-4 rounded-lg flex-1 text-center">
                 <p class="text-gray-400">Required Fund</p>
-                <p class="text-xl font-bold text-lightText dark:text-darkText">{{ requiredFund }} ETH</p>
+                <p class="text-xl font-bold text-lightText dark:text-darkText">{{ CampaignDetailData.requiredFund }} ETH
+                </p>
             </div>
             <div class="dark:bg-darkSecondary bg-white p-4 rounded-lg flex-1 text-center">
                 <p class="text-gray-400">Received Fund</p>
-                <p class="text-xl font-bold text-lightText dark:text-darkText">{{ receivedFund }} ETH</p>
+                <p class="text-xl font-bold text-lightText dark:text-darkText">{{ CampaignDetailData.receivedFund }} ETH
+                </p>
             </div>
         </div>
 
@@ -60,17 +62,16 @@
 
 <script setup>
 import { BxDonateBlood } from '@kalimahapps/vue-icons';
-import { defineProps, inject, ref, toRef } from 'vue';
+import { inject, ref, } from 'vue';
 import toaster from '@/components/toaster/toaster.js';
 import { AshaContract } from '@/utils/contractInteraction';
 import { useRoute, useRouter } from 'vue-router';
 import { VueSpinnerIos } from 'vue3-spinners';
 const router = useRouter();
 const route = useRoute();
+const CampaignDetailData = inject('CampaignDetailData');
+
 const amountInEther = ref(0);
-const props = defineProps(['requiredFund', 'receivedFund']);
-const requiredFund = toRef(props, 'requiredFund');
-const receivedFund = toRef(props, 'receivedFund')
 const sending = ref(false);
 
 async function donateToCampaign() {
@@ -86,6 +87,7 @@ async function donateToCampaign() {
     const response = await contract.donateToCampaign(campaign_address, amountInEther.value);
 
     if (response.success) {
+        await CampaignDetailData.fetchDetailData();
         toaster('success', response.message, 2000);
         console.log("Hash: " + response.hash);
     } else {
