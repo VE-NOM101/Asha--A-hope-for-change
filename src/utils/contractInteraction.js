@@ -84,6 +84,31 @@ export class AshaContract {
     return formated_events
   }
 
+  async getMyCampaign(owner) {
+    const filter = this.ContractData.filters.campaignCreated(
+      null,
+      null,
+      owner,
+      null,
+      null,
+      null,
+      null,
+    )
+    const events = await this.ContractData.queryFilter(filter)
+    const filtered_events = events.reverse()
+    const formated_events = filtered_events.map((e) => {
+      return {
+        title: e.args.title,
+        imageCid: e.args.imgURL,
+        date: parseInt(e.args.timestamp),
+        owner: e.args.owner,
+        amount: ethers.formatEther(e.args.requiredFund),
+        campaignAddress: e.args.campaignAddress.toString(),
+      }
+    })
+    return formated_events
+  }
+
   async getFormatedData(filter) {
     const events = await this.ContractData.queryFilter(filter)
     const filtered_events = events.reverse()

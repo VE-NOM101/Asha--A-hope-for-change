@@ -11,7 +11,7 @@
 
 <script setup>
 import { CoFilter } from '@kalimahapps/vue-icons';
-import { inject, defineEmits } from 'vue';
+import { inject } from 'vue';
 
 const categories = inject('categories');
 
