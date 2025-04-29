@@ -134,7 +134,20 @@ Make sure environment variables are set correctly on both platforms.
 ## 📸 Screenshots
 
 > Add screenshots or demo GIFs here for better understanding.
+- **Home view**:
+<img src="./pic1.PNG"/>
 
+- **Create new campaign**:
+<img src="./pic2.PNG"/>
+
+- **Dashboard**:
+<img src="./pic3.PNG"/>
+
+- **Mode**:
+<img src="./pic4.PNG"/>
+
+- **Detail view**:
+<img src="./pic5.PNG"/>
 ---
 
 ## 🙌 Contribution
