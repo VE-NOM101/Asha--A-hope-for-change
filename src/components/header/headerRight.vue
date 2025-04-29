@@ -12,8 +12,8 @@
         <button @click="toggle_mode"
             class="rounded-full bg-indigo-200 dark:bg-darkSecondary p-3 transition-all duration-500 dark:hover:shadow-(--cyanShadow) hover:shadow-(--purpleShadow)">
 
-            <MdTwoToneBrightness2 v-if="mode === 'dark'" class="text-2xl" />
-            <BsBrightnessHigh v-if="mode === 'light'" class="text-2xl" />
+            <MdTwoToneBrightness2 v-if="store.mode === 'dark'" class="text-2xl" />
+            <BsBrightnessHigh v-if="store.mode === 'light'" class="text-2xl" />
         </button>
     </div>
 </template>
@@ -24,19 +24,19 @@ import { AkBitcoinFill } from '@kalimahapps/vue-icons';
 import { BsBrightnessHigh } from '@kalimahapps/vue-icons';
 import { MdTwoToneBrightness2 } from '@kalimahapps/vue-icons';
 import { connectWallet } from '@/utils/connectWallet';
-
 import { ref, computed, onMounted } from 'vue';
 import { useUserStore } from '@/stores/userStore';
 
 const { ethereum } = window;
 const store = useUserStore();
 
-const mode = ref('dark');
+
 const address = ref(null);
 const balance = ref(null);
 
 const toggle_mode = () => {
-    mode.value = mode.value === 'dark' ? 'light' : 'dark';
+    const toggledMode = store.mode === 'dark' ? 'light' : 'dark';
+    store.setMode(toggledMode);
     document.documentElement.classList.toggle('dark');
 };
 
@@ -59,6 +59,11 @@ const formattedAddress = computed(() => {
 });
 
 onMounted(async () => {
+    if (store.mode === 'dark') {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
     ethereum.on("accountsChanged", async () => {
         await connect();
         store.setUserAddress(address.value);

@@ -9,7 +9,43 @@
   <body
     class="dark:text-darkText text-lightText min-h-screen bg-linear-to-b dark:from-darkBgStart dark:from-60% dark:to-darkBgEnd dark:to-b-40% from-lightBgStart from-60% to-lightBgEnd to-b-40%"
   >
+    <div id="app">
+      <div
+        id="preloader"
+        style="
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(0, 0, 0, 0.9);
+          z-index: 9999;
+        "
+      >
+        <div
+          style="
+            width: 60px;
+            height: 60px;
+            border: 8px solid #ffb347;
+            border-top: 8px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+          "
+        ></div>
+      </div>
+    </div>
+
     <div id="app"></div>
     <script type="module" src="/src/main.js"></script>
+    <style>
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
   </body>
 </html>

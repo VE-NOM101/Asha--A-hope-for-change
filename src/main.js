@@ -10,3 +10,8 @@ app.use(createPinia())
 app.use(router)
 
 app.mount('#app')
+// Hide preloader after Vue mounts
+const preloader = document.getElementById('preloader')
+if (preloader) {
+  preloader.style.display = 'none'
+}
