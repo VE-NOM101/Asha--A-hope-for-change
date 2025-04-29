@@ -1,7 +1,8 @@
 <template>
     <div class="w-full md:w-1/2 flex flex-col gap-4 text-white">
         <!-- Campaign Title -->
-        <h1 class="text-2xl font-bold font-special dark:text-darkText text-lightText">Need Funds for surgery</h1>
+        <h1 class="text-2xl font-bold font-special dark:text-darkText text-lightText">{{ CampaignDetailData.title }}
+        </h1>
 
         <!-- Donation Input and Button -->
         <div class="flex flex-col md:flex-row justify-between items-center gap-4">

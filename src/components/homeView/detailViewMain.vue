@@ -29,6 +29,7 @@ const CampaignDetailData = reactive({
     'storyCid': '',
     'requiredFund': '',
     'receivedFund': '',
+    'title': '',
 });
 
 const loading = ref(true);
@@ -38,6 +39,7 @@ onMounted(async () => {
     CampaignDetailData.storyCid = response.storyCid;
     CampaignDetailData.requiredFund = response.requiredFund;
     CampaignDetailData.receivedFund = response.receivedFund;
+    CampaignDetailData.title = response.title;
     loading.value = false;
 });
 
