@@ -115,6 +115,8 @@ async function donateToCampaign() {
 
         const fetchResponse = await fetchDetailData();
         CampaignDetailData.receivedFund = fetchResponse.receivedFund;
+        recentDonation.value = await fetchRecentDonationData();
+        myDonation.value = await fetchMyDonationData();
     } else {
         toaster('error', response.message);
     }
